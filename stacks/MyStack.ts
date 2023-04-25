@@ -72,9 +72,9 @@ export default class MyStack extends sst.Stack {
 
     // const layer = new PrismaLayer(this, "layer", {})
 
-    new NodejsFunction(this, "nodb", {
-      tracing: Tracing.ACTIVE,
-      entry: __dirname + "/../../src/index.empty.ts",
-    });
+    // new NodejsFunction(this, "nodb", {
+    //   tracing: Tracing.ACTIVE,
+    //   entry: __dirname + "/../../src/index.empty.ts",
+    // });
   }
 }
