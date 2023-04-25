@@ -25,10 +25,12 @@ export default class MyStack extends sst.Stack {
               commandHooks: {
                 beforeInstall: () => [],
                 beforeBundling: () => [],
-                afterBundling: (inputDir, outputDir) => {
+                afterBundling: (inputDir, outputDir) =>
+                {
                   return [
                     `ls ${inputDir}`,
-                    `cp "${inputDir}/prisma/schema.prisma" "${outputDir}"`,
+                    `cp "${inputDir}/prisma/schema.prisma" "${outputDir}/src"`,
+                    `cp "${inputDir}/node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node" "${outputDir}/src"`,
                   ];
                 },
               },
