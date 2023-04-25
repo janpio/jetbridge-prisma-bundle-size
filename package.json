@@ -17,12 +17,12 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.132.0",
-    "prisma": "^3.8.1"
+    "prisma": "^3.13.0"
   },
   "dependencies": {
     "@aws-cdk/aws-lambda-nodejs": "1.132.0",
     "@aws-cdk/core": "1.132.0",
-    "@prisma/client": "^3.8.1",
+    "@prisma/client": "^3.13.0",
     "@serverless-stack/cli": "0.54.2",
     "@serverless-stack/resources": "0.54.2"
   }
