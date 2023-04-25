@@ -12,7 +12,7 @@ datasource db {
 // represents a saved match for a candidate/vacancy pair
 // https://github.com/jetbridge/platform/issues/335
 model CandidateVacancyMatch {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   isLatest Boolean
@@ -32,7 +32,7 @@ model CandidateVacancyMatch {
 }
 
 model CandidateReviewQuestion {
-  id        String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String        @id @default(uuid()) @db.Uuid
   createdAt DateTime      @default(now()) @db.Timestamptz
   text      String
   type      QuestionType
@@ -48,7 +48,7 @@ model CandidateReviewQuestion {
 // raw data we are getting from LI or GH (or other places)
 // it will include ALL information we are getting from that API including things we *think* we dont need
 model CandidateRaw {
-  id                    String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                    String                  @id @default(uuid()) @db.Uuid
   createdAt             DateTime                @default(now()) @db.Timestamptz
   digestSha256          String
   data                  Json
@@ -68,7 +68,7 @@ model CandidateRaw {
 // Represents the last time we parsed a CandidateRaw entry and what parser version was used.
 // it may happen that we will parse the same CandidateRaw multiple times with different parser versions (to get more and more data)
 model CandidateParseHistory {
-  id             String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id             String       @id @default(uuid()) @db.Uuid
   createdAt      DateTime     @default(now()) @db.Timestamptz
   parserVersion  String
   candidateId    String       @db.Uuid
@@ -78,7 +78,7 @@ model CandidateParseHistory {
 }
 
 model CandidateReviewQuestionAnswer {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   answer      String
@@ -94,7 +94,7 @@ model CandidateReviewQuestionAnswer {
 }
 
 model Publication {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   dateMonth   Int?
@@ -109,7 +109,7 @@ model Publication {
 }
 
 model Honor {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz
   candidateId String   @db.Uuid
   title       String
@@ -122,7 +122,7 @@ model Honor {
 }
 
 model Certification {
-  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String   @id @default(uuid()) @db.Uuid
   createdAt     DateTime @default(now()) @db.Timestamptz
   authority     String?
   name          String
@@ -138,14 +138,14 @@ model Certification {
 }
 
 model Language {
-  id                    String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                    String                @id @default(uuid()) @db.Uuid
   createdAt             DateTime              @default(now()) @db.Timestamptz
   name                  String                @unique
   LanguageProficiencies LanguageProficiency[]
 }
 
 model LanguageProficiency {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz
   languageId  String   @db.Uuid
   candidateId String   @db.Uuid
@@ -156,7 +156,7 @@ model LanguageProficiency {
 }
 
 model Industry {
-  id                 String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String               @id @default(uuid()) @db.Uuid
   createdAt          DateTime             @default(now()) @db.Timestamptz
   name               String               @unique
   CompanyIndustryMap CompanyIndustryMap[]
@@ -164,7 +164,7 @@ model Industry {
 }
 
 model Company {
-  id                      String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                      String               @id @default(uuid()) @db.Uuid
   createdAt               DateTime             @default(now()) @db.Timestamptz
   externalId              String?
   name                    String
@@ -177,7 +177,7 @@ model Company {
 }
 
 model Project {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz
   title       String
   description String?
@@ -192,7 +192,7 @@ model Project {
 }
 
 model CompanyIndustryMap {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String   @id @default(uuid()) @db.Uuid
   createdAt  DateTime @default(now()) @db.Timestamptz
   industryId String   @db.Uuid
   Industry   Industry @relation(fields: [industryId], references: [id])
@@ -203,7 +203,7 @@ model CompanyIndustryMap {
 }
 
 model VacancyIndustryMap {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String   @id @default(uuid()) @db.Uuid
   createdAt  DateTime @default(now()) @db.Timestamptz
   industryId String   @db.Uuid
   Industry   Industry @relation(fields: [industryId], references: [id])
@@ -217,7 +217,7 @@ model VacancyIndustryMap {
 // it represents experience candidate was working for some company
 // it represents experience candidate was studing at uni
 model Experience {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz
   description String?
   candidateId String   @db.Uuid
@@ -248,7 +248,7 @@ model Experience {
 // work experience entry in company
 // if someone was working in one company in multiple roles they may split it in multiple entires
 model WorkExperience {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   employmentType  String?
@@ -261,7 +261,7 @@ model WorkExperience {
 }
 
 model University {
-  id         String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String       @id @default(uuid()) @db.Uuid
   createdAt  DateTime     @default(now()) @db.Timestamptz
   name       String
   externalId String?      @unique
@@ -269,7 +269,7 @@ model University {
 }
 
 model Website {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   createdAt   DateTime  @default(now()) @db.Timestamptz
   url         String
   label       String?
@@ -278,7 +278,7 @@ model Website {
 }
 
 model EmailAddress {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   address  String
@@ -289,7 +289,7 @@ model EmailAddress {
 }
 
 model Candidate {
-  id                 String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String    @id @default(uuid()) @db.Uuid
   createdAt          DateTime  @default(now()) @db.Timestamptz
   updatedAt          DateTime? @updatedAt @db.Timestamptz
   emailAddress       String?
@@ -347,7 +347,7 @@ model Candidate {
 
 // A user-managed manual list of candidates
 model CandidateList {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
   name      String
   ownerId   String   @db.Uuid
@@ -360,7 +360,7 @@ model CandidateList {
 
 // A candidate in a list
 model CandidateListMap {
-  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id              String        @id @default(uuid()) @db.Uuid
   createdAt       DateTime      @default(now()) @db.Timestamptz
   candidateListId String        @db.Uuid
   CandidateList   CandidateList @relation(references: [id], fields: [candidateListId], onDelete: Cascade)
@@ -373,7 +373,7 @@ model CandidateListMap {
 }
 
 model CandidateComment {
-  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String     @id @default(uuid()) @db.Uuid
   createdAt   DateTime   @default(now()) @db.Timestamptz
   body        String
   vacancyId   String?    @db.Uuid
@@ -385,7 +385,7 @@ model CandidateComment {
 }
 
 model CandidateSkill {
-  id                   String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                   String                     @id @default(uuid()) @db.Uuid
   candidateId          String                     @db.Uuid
   createdAt            DateTime                   @default(now()) @db.Timestamptz
   skillId              String                     @db.Uuid
@@ -399,7 +399,7 @@ model CandidateSkill {
 }
 
 model CandidateSourcedUser {
-  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String     @id @default(uuid()) @db.Uuid
   userId      String?    @db.Uuid
   candidateId String?    @db.Uuid
   createdAt   DateTime   @default(now()) @db.Timestamptz
@@ -408,7 +408,7 @@ model CandidateSourcedUser {
 }
 
 model Client {
-  id         String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String       @id @default(uuid()) @db.Uuid
   name       String
   createdAt  DateTime     @default(now()) @db.Timestamptz
   tenantId   String?      @db.Uuid
@@ -420,7 +420,7 @@ model Client {
 }
 
 model ClientTeam {
-  id         String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String       @id @default(uuid()) @db.Uuid
   createdAt  DateTime     @default(now()) @db.Timestamptz
   name       String
   clientId   String?      @db.Uuid
@@ -435,7 +435,7 @@ model ClientTeam {
 }
 
 model Funnel {
-  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String        @id @default(uuid()) @db.Uuid
   createdAt   DateTime      @default(now()) @db.Timestamptz
   title       String
   FunnelStage FunnelStage[]
@@ -443,7 +443,7 @@ model Funnel {
 }
 
 model FunnelStage {
-  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String   @id @default(uuid()) @db.Uuid
   createdAt     DateTime @default(now()) @db.Timestamptz
   funnelId      String?  @db.Uuid
   ordinalNumber Int
@@ -453,7 +453,7 @@ model FunnelStage {
 }
 
 model RecruiterStageVacancy {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
   userId    String?  @db.Uuid
   stageId   String?  @db.Uuid
@@ -464,14 +464,14 @@ model RecruiterStageVacancy {
 }
 
 model Role {
-  id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String     @id @default(uuid()) @db.Uuid
   createdAt DateTime   @default(now()) @db.Timestamptz
   title     String     @unique
   UserRole  UserRole[]
 }
 
 model Scorecard {
-  id                      String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                      String                 @id @default(uuid()) @db.Uuid
   createdAt               DateTime               @default(now()) @db.Timestamptz
   name                    String
   vacancyCandidateStageId String?                @db.Uuid
@@ -480,7 +480,7 @@ model Scorecard {
 }
 
 model ScorecardQuestion {
-  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                      String                    @id @default(uuid()) @db.Uuid
   createdAt               DateTime                  @default(now()) @db.Timestamptz
   title                   String
   scorecardId             String?                   @db.Uuid
@@ -489,7 +489,7 @@ model ScorecardQuestion {
 }
 
 model ScorecardQuestionAnswer {
-  id                  String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String             @id @default(uuid()) @db.Uuid
   createdAt           DateTime           @default(now()) @db.Timestamptz
   title               String
   scorecardQuestionId String?            @db.Uuid
@@ -497,7 +497,7 @@ model ScorecardQuestionAnswer {
 }
 
 model Skill {
-  id          String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String         @id @default(uuid()) @db.Uuid
   createdAt   DateTime       @default(now()) @db.Timestamptz
   name        String         @unique
   category    SkillCategory?
@@ -509,7 +509,7 @@ model Skill {
 }
 
 model Stage {
-  id                   String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                   String        @id @default(uuid()) @db.Uuid
   createdAt            DateTime      @default(now()) @db.Timestamptz
   name                 String
   type                 StageType     @default(SOURCED)
@@ -526,7 +526,7 @@ model Stage {
 }
 
 model StageUser {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
   stageId   String?  @db.Uuid
   userId    String?  @db.Uuid
@@ -535,7 +535,7 @@ model StageUser {
 }
 
 model Tenant {
-  id           String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String       @id @default(uuid()) @db.Uuid
   createdAt    DateTime     @default(now()) @db.Timestamptz
   name         String       @unique
   emailAddress String?
@@ -546,7 +546,7 @@ model Tenant {
 }
 
 model Thread {
-  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(uuid()) @db.Uuid
   createdAt         DateTime            @default(now()) @db.Timestamptz
   vacancyId         String?             @db.Uuid
   candidateId       String?             @db.Uuid
@@ -560,7 +560,7 @@ model Thread {
 }
 
 model Message {
-  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String   @id @default(uuid()) @db.Uuid
   createdAt          DateTime @default(now()) @db.Timestamptz
   body               String
   isSystemMessage    Boolean  @default(false)
@@ -578,7 +578,7 @@ model Message {
 }
 
 model ThreadParticipant {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamptz
   recipientId String   @db.Uuid
   threadId    String   @db.Uuid
@@ -587,7 +587,7 @@ model ThreadParticipant {
 }
 
 model ReadReceipt {
-  id                         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                         String    @id @default(uuid()) @db.Uuid
   createdAt                  DateTime  @default(now()) @db.Timestamptz
   readAt                     DateTime? @default(now()) @db.Timestamptz
   recipientId                String    @db.Uuid
@@ -601,7 +601,7 @@ model ReadReceipt {
 }
 
 model User {
-  id                            String                          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                            String                          @id @default(uuid()) @db.Uuid
   createdAt                     DateTime                        @default(now()) @db.Timestamptz
   userName                      String                          @unique
   name                          String?
@@ -640,7 +640,7 @@ model User {
 }
 
 model UserRole {
-  id     String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id     String  @id @default(uuid()) @db.Uuid
   userId String? @db.Uuid
   User   User?   @relation(fields: [userId], references: [id])
   roleId String? @db.Uuid
@@ -650,7 +650,7 @@ model UserRole {
 }
 
 model UserInvite {
-  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   createdAt    DateTime @default(now()) @db.Timestamptz
   emailAddress String   @unique
   groups       String[]
@@ -675,7 +675,7 @@ model UserInvite {
 }
 
 model Vacancy {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String          @id @default(uuid()) @db.Uuid
   createdAt     DateTime        @default(now()) @db.Timestamptz
   name          String
   funnelId      String?         @db.Uuid
@@ -706,7 +706,7 @@ model Vacancy {
 }
 
 model VacancyCandidateStage {
-  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id             String      @id @default(uuid()) @db.Uuid
   createdAt      DateTime    @default(now()) @db.Timestamptz
   stageId        String?     @db.Uuid
   candidateId    String?     @db.Uuid
@@ -719,7 +719,7 @@ model VacancyCandidateStage {
 }
 
 model VacancySkill {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   vacancyId  String    @db.Uuid
   skillId    String    @db.Uuid
   createdAt  DateTime  @default(now()) @db.Timestamptz
@@ -733,7 +733,7 @@ model VacancySkill {
 // working hours of user - we will report only activities in that time.
 // startDate and endDate are so users can change working hours.
 model WorkingHours {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
 
   startDate DateTime  @db.Timestamptz
@@ -747,7 +747,7 @@ model WorkingHours {
 // if it's on LinkedIn/Github of potential candidate we should also link it with candidate
 // if users are on different websites (like facebook or instagram we just record)
 model UserActivity {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz
   sessionId String   @unique @db.Uuid
 
@@ -842,5 +842,5 @@ enum ThirdPartySkillAssessment {
 /// shared
 
 model Cool {
-  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 }
