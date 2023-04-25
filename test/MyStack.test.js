@@ -1,5 +1,5 @@
 import { expect, haveResource } from "aws-cdk-lib/assertions";
-import * as sst from "@serverless-stack/resources";
+import * as sst from "sst/constructs";
 import MyStack from "../stacks/MyStack";
 
 test("Test Stack", () => {

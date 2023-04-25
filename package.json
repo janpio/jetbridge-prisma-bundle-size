@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@prisma/client": "^3.13.0",
-    "@serverless-stack/cli": "1.18.4",
-    "@serverless-stack/resources": "1.18.4",
+    "sst": "2.x",
+    "constructs": "10.1.156",
     "aws-cdk-lib": "2.50.0"
   }
 }

@@ -1,8 +1,8 @@
-import * as sst from "@serverless-stack/resources";
+import * as sst from "sst/constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Tracing } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "aws-cdk-lib";
-import { StackProps } from "@serverless-stack/resources";
+import { StackProps } from "sst/constructs";
 
 export default class MyStack extends sst.Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
@@ -11,11 +11,16 @@ export default class MyStack extends sst.Stack {
     // Create a HTTP API
     const api = new sst.Api(this, "Api", {
       routes: {
-        "GET /no-prisma": "src/lambda.handler",
+        "GET /no-prisma": {
+          function: {
+            handler: "src/lambda.handler",
+            runtime: "nodejs16.x"
+          }
+        },
         "GET /prisma": {
           function: {
-            tracing: Tracing.ACTIVE,
             handler: "src/prisma.handler",
+            runtime: "nodejs16.x",
             environment: {
               // ...layer.environment,
               DATABASE_URL: "postgresql://coral_combined_mariel:utYDPjGQS7@db-provision-postgres23452b4.c8yxynpcltwd.us-east-1.rds.amazonaws.com:5432/ivory_narwhal",
@@ -39,8 +44,8 @@ export default class MyStack extends sst.Stack {
         },
         "GET /prisma-empty": {
           function: {
-            tracing: Tracing.ACTIVE,
             handler: "src/prisma-empty.handler",
+            runtime: "nodejs16.x",
             environment: {
               // ...layer.environment,
               DATABASE_URL: "postgresql://coral_combined_mariel:utYDPjGQS7@db-provision-postgres23452b4.c8yxynpcltwd.us-east-1.rds.amazonaws.com:5432/ivory_narwhal",
