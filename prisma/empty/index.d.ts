@@ -3,13 +3,13 @@
  * Client
 **/
 
-import * as runtime from './runtime/index';
-declare const prisma: unique symbol
-export type PrismaPromise<A> = Promise<A> & {[prisma]: true}
+import * as runtime from './runtime/library';
 type UnwrapPromise<P extends any> = P extends Promise<infer R> ? R : P
 type UnwrapTuple<Tuple extends readonly unknown[]> = {
-  [K in keyof Tuple]: K extends `${number}` ? Tuple[K] extends PrismaPromise<infer X> ? X : UnwrapPromise<Tuple[K]> : UnwrapPromise<Tuple[K]>
+  [K in keyof Tuple]: K extends `${number}` ? Tuple[K] extends Prisma.PrismaPromise<infer X> ? X : UnwrapPromise<Tuple[K]> : UnwrapPromise<Tuple[K]>
 };
+
+export type PrismaPromise<T> = runtime.Types.Public.PrismaPromise<T>
 
 
 /**
@@ -38,35 +38,10 @@ export type Cool = {
 export class PrismaClient<
   T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
   U = 'log' extends keyof T ? T['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<T['log']> : never : never,
-  GlobalReject = 'rejectOnNotFound' extends keyof T
+  GlobalReject extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined = 'rejectOnNotFound' extends keyof T
     ? T['rejectOnNotFound']
     : false
       > {
-      /**
-       * @private
-       */
-      private fetcher;
-      /**
-       * @private
-       */
-      private readonly dmmf;
-      /**
-       * @private
-       */
-      private connectionPromise?;
-      /**
-       * @private
-       */
-      private disconnectionPromise?;
-      /**
-       * @private
-       */
-      private readonly engineConfig;
-      /**
-       * @private
-       */
-      private readonly measurePerformance;
-
     /**
    * ##  Prisma Client ʲˢ
    * 
@@ -109,7 +84,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<number>;
+  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
   /**
    * Executes a raw query and returns the number of affected rows.
@@ -121,7 +96,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<number>;
+  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
   /**
    * Performs a prepared raw query and returns the `SELECT` data.
@@ -132,7 +107,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<T>;
+  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
   /**
    * Performs a raw query and returns the `SELECT` data.
@@ -144,7 +119,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<T>;
+  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
   /**
    * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
@@ -159,9 +134,9 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
    */
-  $transaction<P extends PrismaPromise<any>[]>(arg: [...P]): Promise<UnwrapTuple<P>>;
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): Promise<UnwrapTuple<P>>
 
-  $transaction<R>(fn: (prisma: Prisma.TransactionClient) => Promise<R>, options?: { maxWait?: number, timeout?: number }): Promise<R>;
+  $transaction<R>(fn: (prisma: Omit<this, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use">) => Promise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): Promise<R>
 
       /**
    * `prisma.cool`: Exposes CRUD operations for the **Cool** model.
@@ -177,6 +152,8 @@ export class PrismaClient<
 export namespace Prisma {
   export import DMMF = runtime.DMMF
 
+  export type PrismaPromise<T> = runtime.Types.Public.PrismaPromise<T>
+
   /**
    * Prisma Errors
    */
@@ -185,6 +162,7 @@ export namespace Prisma {
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
+  export import NotFoundError = runtime.NotFoundError
 
   /**
    * Re-export of sql-template-tag
@@ -200,9 +178,20 @@ export namespace Prisma {
    */
   export import Decimal = runtime.Decimal
 
+  export type DecimalJsLike = runtime.DecimalJsLike
+
   /**
-   * Prisma Client JS version: 3.13.0
-   * Query Engine version: efdf9b1183dddfd4258cd181a72125755215ab7b
+   * Metrics 
+   */
+  export type Metrics = runtime.Metrics
+  export type Metric<T> = runtime.Metric<T>
+  export type MetricHistogram = runtime.MetricHistogram
+  export type MetricHistogramBucket = runtime.MetricHistogramBucket
+
+
+  /**
+   * Prisma Client JS version: 4.14.0-dev.21
+   * Query Engine version: 0145f3f905a104fabe142ed6b861cb8f0f56f5e7
    */
   export type PrismaVersion = {
     client: string
@@ -261,25 +250,68 @@ export namespace Prisma {
   export type InputJsonValue = string | number | boolean | InputJsonObject | InputJsonArray
 
   /**
+   * Types of the values used to represent different kinds of `null` values when working with JSON fields.
+   * 
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  namespace NullTypes {
+    /**
+    * Type of `Prisma.DbNull`.
+    * 
+    * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
+    * 
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class DbNull {
+      private DbNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.JsonNull`.
+    * 
+    * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
+    * 
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class JsonNull {
+      private JsonNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.AnyNull`.
+    * 
+    * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
+    * 
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class AnyNull {
+      private AnyNull: never
+      private constructor()
+    }
+  }
+
+  /**
    * Helper for filtering JSON entries that have `null` on the database (empty on the db)
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const DbNull: 'DbNull'
+  export const DbNull: NullTypes.DbNull
 
   /**
    * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const JsonNull: 'JsonNull'
+  export const JsonNull: NullTypes.JsonNull
 
   /**
    * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const AnyNull: 'AnyNull'
+  export const AnyNull: NullTypes.AnyNull
 
   type SelectAndInclude = {
     select: any
@@ -323,9 +355,9 @@ export namespace Prisma {
     [K in keyof T]-?: {} extends Prisma__Pick<T, K> ? never : K
   }[keyof T]
 
-  export type TruthyKeys<T> = {
-    [key in keyof T]: T[key] extends false | undefined | null ? never : key
-  }[keyof T]
+  export type TruthyKeys<T> = keyof {
+    [K in keyof T as T[K] extends false | undefined | null ? never : K]: K
+  }
 
   export type TrueKeys<T> = TruthyKeys<Prisma__Pick<T, RequiredKeys<T>>>
 
@@ -378,7 +410,7 @@ export namespace Prisma {
   ? False
   : T extends Date
   ? False
-  : T extends Buffer
+  : T extends Uint8Array
   ? False
   : T extends BigInt
   ? False
@@ -463,6 +495,16 @@ export namespace Prisma {
     [P in K]: T;
   };
 
+  // cause typescript not to expand types and preserve names
+  type NoExpand<T> = T extends unknown ? T : never;
+
+  // this type assumes the passed object is entirely optional
+  type AtLeast<O extends object, K extends string> = NoExpand<
+    O extends unknown
+    ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
+      | {[P in keyof O as P extends K ? K : never]-?: O[P]} & O
+    : never>;
+
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
 
   export type Strict<U extends object> = ComputeRaw<_Strict<U>>;
@@ -513,19 +555,11 @@ export namespace Prisma {
 
   export type Keys<U extends Union> = U extends unknown ? keyof U : never
 
-  type Exact<A, W = unknown> = 
-  W extends unknown ? A extends Narrowable ? Cast<A, W> : Cast<
-  {[K in keyof A]: K extends keyof W ? Exact<A[K], W[K]> : never},
-  {[K in keyof W]: K extends keyof A ? Exact<A[K], W[K]> : W[K]}>
-  : never;
-
-  type Narrowable = string | number | boolean | bigint;
-
   type Cast<A, B> = A extends B ? A : B;
 
   export const type: unique symbol;
 
-  export function validator<V>(): <S>(select: Exact<S, V>) => S;
+  export function validator<V>(): <S>(select: runtime.Types.Utils.LegacyExact<S, V>) => S;
 
   /**
    * Used by group by
@@ -575,15 +609,11 @@ export namespace Prisma {
    */
   type ExcludeUnderscoreKeys<T extends string> = T extends `_${string}` ? never : T
 
-  class PrismaClientFetcher {
-    private readonly prisma;
-    private readonly debug;
-    private readonly hooks?;
-    constructor(prisma: PrismaClient<any, any>, debug?: boolean, hooks?: Hooks | undefined);
-    request<T>(document: any, dataPath?: string[], rootField?: string, typeName?: string, isList?: boolean, callsite?: string): Promise<T>;
-    sanitizeMessage(message: string): string;
-    protected unpack(document: any, data: any, path: string[], rootField?: string, isList?: boolean): any;
-  }
+
+  export type FieldRef<Model, FieldType> = runtime.FieldRef<Model, FieldType>
+
+  type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRef<Model, FieldType>
+
 
   export const ModelName: {
     Cool: 'Cool'
@@ -596,6 +626,7 @@ export namespace Prisma {
     db?: Datasource
   }
 
+  export type DefaultPrismaClient = PrismaClient
   export type RejectOnNotFound = boolean | ((error: Error) => Error)
   export type RejectPerModel = { [P in ModelName]?: RejectOnNotFound }
   export type RejectPerOperation =  { [P in "findUnique" | "findFirst"]?: RejectPerModel | RejectOnNotFound } 
@@ -623,7 +654,8 @@ export namespace Prisma {
   export interface PrismaClientOptions {
     /**
      * Configure findUnique/findFirst to throw an error if the query returns null. 
-     *  * @example
+     * @deprecated since 4.0.0. Use `findUniqueOrThrow`/`findFirstOrThrow` methods instead.
+     * @example
      * ```
      * // Reject on both findUnique/findFirst
      * rejectOnNotFound: true
@@ -635,7 +667,7 @@ export namespace Prisma {
      */
     rejectOnNotFound?: RejectOnNotFound | RejectPerOperation
     /**
-     * Overwrites the datasource url from your prisma.schema file
+     * Overwrites the datasource url from your schema.prisma file
      */
     datasources?: Datasources
 
@@ -661,10 +693,6 @@ export namespace Prisma {
      * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
     log?: Array<LogLevel | LogDefinition>
-  }
-
-  export type Hooks = {
-    beforeRequest?: (options: { query: string, path: string[], rootField?: string, typeName?: string, document: any }) => any
   }
 
   /* Types for Logging */
@@ -711,9 +739,10 @@ export namespace Prisma {
     | 'aggregate'
     | 'count'
     | 'runCommandRaw'
+    | 'findRaw'
 
   /**
-   * These options are being passed in to the middleware as "params"
+   * These options are being passed into the middleware as "params"
    */
   export type MiddlewareParams = {
     model?: ModelName
@@ -734,11 +763,10 @@ export namespace Prisma {
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
 
-
   /**
    * `PrismaClient` proxy available in interactive transactions.
    */
-  export type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+  export type TransactionClient = Omit<Prisma.DefaultPrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
 
   export type Datasource = {
     url?: string
@@ -795,36 +823,31 @@ export namespace Prisma {
   export type CoolAggregateArgs = {
     /**
      * Filter which Cool to aggregate.
-     * 
-    **/
+     */
     where?: CoolWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Cools to fetch.
-     * 
-    **/
+     */
     orderBy?: Enumerable<CoolOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
-     * 
-    **/
+     */
     cursor?: CoolWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Cools from the position of the cursor.
-     * 
-    **/
+     */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Cools.
-     * 
-    **/
+     */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
@@ -860,7 +883,7 @@ export namespace Prisma {
   export type CoolGroupByArgs = {
     where?: CoolWhereInput
     orderBy?: Enumerable<CoolOrderByWithAggregationInput>
-    by: Array<CoolScalarFieldEnum>
+    by: CoolScalarFieldEnum[]
     having?: CoolScalarWhereWithAggregatesInput
     take?: number
     skip?: number
@@ -877,7 +900,7 @@ export namespace Prisma {
     _max: CoolMaxAggregateOutputType | null
   }
 
-  type GetCoolGroupByPayload<T extends CoolGroupByArgs> = PrismaPromise<
+  type GetCoolGroupByPayload<T extends CoolGroupByArgs> = Prisma.PrismaPromise<
     Array<
       PickArray<CoolGroupByOutputType, T['by']> &
         {
@@ -895,32 +918,28 @@ export namespace Prisma {
     id?: boolean
   }
 
-  export type CoolGetPayload<
-    S extends boolean | null | undefined | CoolArgs,
-    U = keyof S
-      > = S extends true
-        ? Cool
-    : S extends undefined
-    ? never
-    : S extends CoolArgs | CoolFindManyArgs
-    ?'include' extends U
+
+  export type CoolGetPayload<S extends boolean | null | undefined | CoolArgs> =
+    S extends { select: any, include: any } ? 'Please either choose `select` or `include`' :
+    S extends true ? Cool :
+    S extends undefined ? never :
+    S extends { include: any } & (CoolArgs | CoolFindManyArgs)
     ? Cool 
-    : 'select' extends U
-    ? {
-    [P in TrueKeys<S['select']>]:
+    : S extends { select: any } & (CoolArgs | CoolFindManyArgs)
+      ? {
+    [P in TruthyKeys<S['select']>]:
     P extends keyof Cool ? Cool[P] : never
   } 
-    : Cool
-  : Cool
+      : Cool
 
 
-  type CoolCountArgs = Merge<
+  type CoolCountArgs = 
     Omit<CoolFindManyArgs, 'select' | 'include'> & {
       select?: CoolCountAggregateInputType | true
     }
-  >
 
-  export interface CoolDelegate<GlobalRejectSettings> {
+  export interface CoolDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined> {
+
     /**
      * Find zero or one Cool that matches the filter.
      * @param {CoolFindUniqueArgs} args - Arguments to find a Cool
@@ -934,7 +953,23 @@ export namespace Prisma {
     **/
     findUnique<T extends CoolFindUniqueArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
       args: SelectSubset<T, CoolFindUniqueArgs>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Cool'> extends True ? CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>> : CheckSelect<T, Prisma__CoolClient<Cool | null >, Prisma__CoolClient<CoolGetPayload<T> | null >>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Cool'> extends True ? Prisma__CoolClient<CoolGetPayload<T>> : Prisma__CoolClient<CoolGetPayload<T> | null, null>
+
+    /**
+     * Find one Cool that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {CoolFindUniqueOrThrowArgs} args - Arguments to find a Cool
+     * @example
+     * // Get one Cool
+     * const cool = await prisma.cool.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends CoolFindUniqueOrThrowArgs>(
+      args?: SelectSubset<T, CoolFindUniqueOrThrowArgs>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Find the first Cool that matches the filter.
@@ -951,7 +986,25 @@ export namespace Prisma {
     **/
     findFirst<T extends CoolFindFirstArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
       args?: SelectSubset<T, CoolFindFirstArgs>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Cool'> extends True ? CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>> : CheckSelect<T, Prisma__CoolClient<Cool | null >, Prisma__CoolClient<CoolGetPayload<T> | null >>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Cool'> extends True ? Prisma__CoolClient<CoolGetPayload<T>> : Prisma__CoolClient<CoolGetPayload<T> | null, null>
+
+    /**
+     * Find the first Cool that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CoolFindFirstOrThrowArgs} args - Arguments to find a Cool
+     * @example
+     * // Get one Cool
+     * const cool = await prisma.cool.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends CoolFindFirstOrThrowArgs>(
+      args?: SelectSubset<T, CoolFindFirstOrThrowArgs>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Find zero or more Cools that matches the filter.
@@ -971,7 +1024,7 @@ export namespace Prisma {
     **/
     findMany<T extends CoolFindManyArgs>(
       args?: SelectSubset<T, CoolFindManyArgs>
-    ): CheckSelect<T, PrismaPromise<Array<Cool>>, PrismaPromise<Array<CoolGetPayload<T>>>>
+    ): Prisma.PrismaPromise<Array<CoolGetPayload<T>>>
 
     /**
      * Create a Cool.
@@ -987,7 +1040,7 @@ export namespace Prisma {
     **/
     create<T extends CoolCreateArgs>(
       args: SelectSubset<T, CoolCreateArgs>
-    ): CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Create many Cools.
@@ -1003,7 +1056,7 @@ export namespace Prisma {
     **/
     createMany<T extends CoolCreateManyArgs>(
       args?: SelectSubset<T, CoolCreateManyArgs>
-    ): PrismaPromise<BatchPayload>
+    ): Prisma.PrismaPromise<BatchPayload>
 
     /**
      * Delete a Cool.
@@ -1019,7 +1072,7 @@ export namespace Prisma {
     **/
     delete<T extends CoolDeleteArgs>(
       args: SelectSubset<T, CoolDeleteArgs>
-    ): CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Update one Cool.
@@ -1038,7 +1091,7 @@ export namespace Prisma {
     **/
     update<T extends CoolUpdateArgs>(
       args: SelectSubset<T, CoolUpdateArgs>
-    ): CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Delete zero or more Cools.
@@ -1054,7 +1107,7 @@ export namespace Prisma {
     **/
     deleteMany<T extends CoolDeleteManyArgs>(
       args?: SelectSubset<T, CoolDeleteManyArgs>
-    ): PrismaPromise<BatchPayload>
+    ): Prisma.PrismaPromise<BatchPayload>
 
     /**
      * Update zero or more Cools.
@@ -1075,7 +1128,7 @@ export namespace Prisma {
     **/
     updateMany<T extends CoolUpdateManyArgs>(
       args: SelectSubset<T, CoolUpdateManyArgs>
-    ): PrismaPromise<BatchPayload>
+    ): Prisma.PrismaPromise<BatchPayload>
 
     /**
      * Create or update one Cool.
@@ -1096,7 +1149,7 @@ export namespace Prisma {
     **/
     upsert<T extends CoolUpsertArgs>(
       args: SelectSubset<T, CoolUpsertArgs>
-    ): CheckSelect<T, Prisma__CoolClient<Cool>, Prisma__CoolClient<CoolGetPayload<T>>>
+    ): Prisma__CoolClient<CoolGetPayload<T>>
 
     /**
      * Count the number of Cools.
@@ -1113,7 +1166,7 @@ export namespace Prisma {
     **/
     count<T extends CoolCountArgs>(
       args?: Subset<T, CoolCountArgs>,
-    ): PrismaPromise<
+    ): Prisma.PrismaPromise<
       T extends _Record<'select', any>
         ? T['select'] extends true
           ? number
@@ -1145,7 +1198,7 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends CoolAggregateArgs>(args: Subset<T, CoolAggregateArgs>): PrismaPromise<GetCoolAggregateType<T>>
+    aggregate<T extends CoolAggregateArgs>(args: Subset<T, CoolAggregateArgs>): Prisma.PrismaPromise<GetCoolAggregateType<T>>
 
     /**
      * Group by Cool.
@@ -1222,7 +1275,8 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, CoolGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCoolGroupByPayload<T> : PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, CoolGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCoolGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
   }
 
   /**
@@ -1231,10 +1285,8 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export class Prisma__CoolClient<T> implements PrismaPromise<T> {
-    [prisma]: true;
+  export class Prisma__CoolClient<T, Null = never> implements Prisma.PrismaPromise<T> {
     private readonly _dmmf;
-    private readonly _fetcher;
     private readonly _queryType;
     private readonly _rootField;
     private readonly _clientMethod;
@@ -1245,8 +1297,8 @@ export namespace Prisma {
     private _isList;
     private _callsite;
     private _requestPromise?;
-    constructor(_dmmf: runtime.DMMFClass, _fetcher: PrismaClientFetcher, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
-    readonly [Symbol.toStringTag]: 'PrismaClientPromise';
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
 
     private get _document();
@@ -1272,83 +1324,148 @@ export namespace Prisma {
     finally(onfinally?: (() => void) | undefined | null): Promise<T>;
   }
 
+
+
   // Custom InputTypes
+
+  /**
+   * Cool base type for findUnique actions
+   */
+  export type CoolFindUniqueArgsBase = {
+    /**
+     * Select specific fields to fetch from the Cool
+     */
+    select?: CoolSelect | null
+    /**
+     * Filter, which Cool to fetch.
+     */
+    where: CoolWhereUniqueInput
+  }
 
   /**
    * Cool findUnique
    */
-  export type CoolFindUniqueArgs = {
+  export interface CoolFindUniqueArgs extends CoolFindUniqueArgsBase {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Cool findUniqueOrThrow
+   */
+  export type CoolFindUniqueOrThrowArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
-     * Throw an Error if a Cool can't be found
-     * 
-    **/
-    rejectOnNotFound?: RejectOnNotFound
-    /**
      * Filter, which Cool to fetch.
-     * 
-    **/
+     */
     where: CoolWhereUniqueInput
   }
 
 
   /**
-   * Cool findFirst
+   * Cool base type for findFirst actions
    */
-  export type CoolFindFirstArgs = {
+  export type CoolFindFirstArgsBase = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
-     * Throw an Error if a Cool can't be found
-     * 
-    **/
-    rejectOnNotFound?: RejectOnNotFound
-    /**
      * Filter, which Cool to fetch.
-     * 
-    **/
+     */
     where?: CoolWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Cools to fetch.
-     * 
-    **/
+     */
     orderBy?: Enumerable<CoolOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for searching for Cools.
-     * 
-    **/
+     */
     cursor?: CoolWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Cools from the position of the cursor.
-     * 
-    **/
+     */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Cools.
-     * 
-    **/
+     */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
      * Filter by unique combinations of Cools.
+     */
+    distinct?: Enumerable<CoolScalarFieldEnum>
+  }
+
+  /**
+   * Cool findFirst
+   */
+  export interface CoolFindFirstArgs extends CoolFindFirstArgsBase {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Cool findFirstOrThrow
+   */
+  export type CoolFindFirstOrThrowArgs = {
+    /**
+     * Select specific fields to fetch from the Cool
+     */
+    select?: CoolSelect | null
+    /**
+     * Filter, which Cool to fetch.
+     */
+    where?: CoolWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-    **/
+     * Determine the order of Cools to fetch.
+     */
+    orderBy?: Enumerable<CoolOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Cools.
+     */
+    cursor?: CoolWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Cools from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Cools.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Cools.
+     */
     distinct?: Enumerable<CoolScalarFieldEnum>
   }
 
@@ -1359,41 +1476,35 @@ export namespace Prisma {
   export type CoolFindManyArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
      * Filter, which Cools to fetch.
-     * 
-    **/
+     */
     where?: CoolWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Cools to fetch.
-     * 
-    **/
+     */
     orderBy?: Enumerable<CoolOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for listing Cools.
-     * 
-    **/
+     */
     cursor?: CoolWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Cools from the position of the cursor.
-     * 
-    **/
+     */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Cools.
-     * 
-    **/
+     */
     skip?: number
     distinct?: Enumerable<CoolScalarFieldEnum>
   }
@@ -1405,13 +1516,11 @@ export namespace Prisma {
   export type CoolCreateArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
      * The data needed to create a Cool.
-     * 
-    **/
+     */
     data: XOR<CoolCreateInput, CoolUncheckedCreateInput>
   }
 
@@ -1422,8 +1531,7 @@ export namespace Prisma {
   export type CoolCreateManyArgs = {
     /**
      * The data used to create many Cools.
-     * 
-    **/
+     */
     data: Enumerable<CoolCreateManyInput>
     skipDuplicates?: boolean
   }
@@ -1435,18 +1543,15 @@ export namespace Prisma {
   export type CoolUpdateArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
      * The data needed to update a Cool.
-     * 
-    **/
+     */
     data: XOR<CoolUpdateInput, CoolUncheckedUpdateInput>
     /**
      * Choose, which Cool to update.
-     * 
-    **/
+     */
     where: CoolWhereUniqueInput
   }
 
@@ -1457,13 +1562,11 @@ export namespace Prisma {
   export type CoolUpdateManyArgs = {
     /**
      * The data used to update Cools.
-     * 
-    **/
+     */
     data: XOR<CoolUpdateManyMutationInput, CoolUncheckedUpdateManyInput>
     /**
      * Filter which Cools to update
-     * 
-    **/
+     */
     where?: CoolWhereInput
   }
 
@@ -1474,23 +1577,19 @@ export namespace Prisma {
   export type CoolUpsertArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
      * The filter to search for the Cool to update in case it exists.
-     * 
-    **/
+     */
     where: CoolWhereUniqueInput
     /**
      * In case the Cool found by the `where` argument doesn't exist, create a new Cool with this data.
-     * 
-    **/
+     */
     create: XOR<CoolCreateInput, CoolUncheckedCreateInput>
     /**
      * In case the Cool was found with the provided `where` argument, update it with this data.
-     * 
-    **/
+     */
     update: XOR<CoolUpdateInput, CoolUncheckedUpdateInput>
   }
 
@@ -1501,13 +1600,11 @@ export namespace Prisma {
   export type CoolDeleteArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
     /**
      * Filter which Cool to delete.
-     * 
-    **/
+     */
     where: CoolWhereUniqueInput
   }
 
@@ -1518,8 +1615,7 @@ export namespace Prisma {
   export type CoolDeleteManyArgs = {
     /**
      * Filter which Cools to delete
-     * 
-    **/
+     */
     where?: CoolWhereInput
   }
 
@@ -1530,8 +1626,7 @@ export namespace Prisma {
   export type CoolArgs = {
     /**
      * Select specific fields to fetch from the Cool
-     * 
-    **/
+     */
     select?: CoolSelect | null
   }
 
@@ -1551,6 +1646,14 @@ export namespace Prisma {
   export type CoolScalarFieldEnum = (typeof CoolScalarFieldEnum)[keyof typeof CoolScalarFieldEnum]
 
 
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -1559,12 +1662,14 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
+  export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
+    Serializable: 'Serializable'
   };
 
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+  export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
   /**
@@ -1576,7 +1681,7 @@ export namespace Prisma {
     AND?: Enumerable<CoolWhereInput>
     OR?: Enumerable<CoolWhereInput>
     NOT?: Enumerable<CoolWhereInput>
-    id?: StringFilter | string
+    id?: UuidFilter | string
   }
 
   export type CoolOrderByWithRelationInput = {
@@ -1598,7 +1703,7 @@ export namespace Prisma {
     AND?: Enumerable<CoolScalarWhereWithAggregatesInput>
     OR?: Enumerable<CoolScalarWhereWithAggregatesInput>
     NOT?: Enumerable<CoolScalarWhereWithAggregatesInput>
-    id?: StringWithAggregatesFilter | string
+    id?: UuidWithAggregatesFilter | string
   }
 
   export type CoolCreateInput = {
@@ -1629,19 +1734,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
   }
 
-  export type StringFilter = {
+  export type UuidFilter = {
     equals?: string
-    in?: Enumerable<string>
-    notIn?: Enumerable<string>
+    in?: Enumerable<string> | string
+    notIn?: Enumerable<string> | string
     lt?: string
     lte?: string
     gt?: string
     gte?: string
-    contains?: string
-    startsWith?: string
-    endsWith?: string
     mode?: QueryMode
-    not?: NestedStringFilter | string
+    not?: NestedUuidFilter | string
   }
 
   export type CoolCountOrderByAggregateInput = {
@@ -1656,19 +1758,16 @@ export namespace Prisma {
     id?: SortOrder
   }
 
-  export type StringWithAggregatesFilter = {
+  export type UuidWithAggregatesFilter = {
     equals?: string
-    in?: Enumerable<string>
-    notIn?: Enumerable<string>
+    in?: Enumerable<string> | string
+    notIn?: Enumerable<string> | string
     lt?: string
     lte?: string
     gt?: string
     gte?: string
-    contains?: string
-    startsWith?: string
-    endsWith?: string
     mode?: QueryMode
-    not?: NestedStringWithAggregatesFilter | string
+    not?: NestedUuidWithAggregatesFilter | string
     _count?: NestedIntFilter
     _min?: NestedStringFilter
     _max?: NestedStringFilter
@@ -1678,10 +1777,46 @@ export namespace Prisma {
     set?: string
   }
 
+  export type NestedUuidFilter = {
+    equals?: string
+    in?: Enumerable<string> | string
+    notIn?: Enumerable<string> | string
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    not?: NestedUuidFilter | string
+  }
+
+  export type NestedUuidWithAggregatesFilter = {
+    equals?: string
+    in?: Enumerable<string> | string
+    notIn?: Enumerable<string> | string
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    not?: NestedUuidWithAggregatesFilter | string
+    _count?: NestedIntFilter
+    _min?: NestedStringFilter
+    _max?: NestedStringFilter
+  }
+
+  export type NestedIntFilter = {
+    equals?: number
+    in?: Enumerable<number> | number
+    notIn?: Enumerable<number> | number
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntFilter | number
+  }
+
   export type NestedStringFilter = {
     equals?: string
-    in?: Enumerable<string>
-    notIn?: Enumerable<string>
+    in?: Enumerable<string> | string
+    notIn?: Enumerable<string> | string
     lt?: string
     lte?: string
     gt?: string
@@ -1690,34 +1825,6 @@ export namespace Prisma {
     startsWith?: string
     endsWith?: string
     not?: NestedStringFilter | string
-  }
-
-  export type NestedStringWithAggregatesFilter = {
-    equals?: string
-    in?: Enumerable<string>
-    notIn?: Enumerable<string>
-    lt?: string
-    lte?: string
-    gt?: string
-    gte?: string
-    contains?: string
-    startsWith?: string
-    endsWith?: string
-    not?: NestedStringWithAggregatesFilter | string
-    _count?: NestedIntFilter
-    _min?: NestedStringFilter
-    _max?: NestedStringFilter
-  }
-
-  export type NestedIntFilter = {
-    equals?: number
-    in?: Enumerable<number>
-    notIn?: Enumerable<number>
-    lt?: number
-    lte?: number
-    gt?: number
-    gte?: number
-    not?: NestedIntFilter | number
   }
 
 
@@ -1733,5 +1840,5 @@ export namespace Prisma {
   /**
    * DMMF
    */
-  export const dmmf: runtime.DMMF.Document;
+  export const dmmf: runtime.BaseDMMF
 }
